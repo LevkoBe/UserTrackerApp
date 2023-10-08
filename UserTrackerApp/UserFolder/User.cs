@@ -2,7 +2,7 @@
 {
     public class User
     {
-        private UserData userData;
+        public UserData userData { get; set; }
 
         public User(UserData data)
         {
