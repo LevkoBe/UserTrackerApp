@@ -24,11 +24,12 @@ UserActivityManager userActivityManager = new UserActivityManager(userLoader);
 
 Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30)));
 
+
+
 app.MapGet("/", () => userLoader.GetAllUsers());
 app.MapGet("/formatted", () => userLoader.GetAllUsers().Select(user => user.ToString()));
-
 app.MapGet("/api/stats/users", (HttpContext context) =>
-{ // works with this "https://localhost:7215/api/stats/users?date=2023-10-08T22:07:06.9711678"
+{
     var date = context.Request.Query["date"];
     if (DateTime.TryParseExact(date, "yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime dateTime))
     {
