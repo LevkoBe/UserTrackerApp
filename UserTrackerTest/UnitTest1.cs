@@ -1,4 +1,7 @@
 
+using System.Text.Json;
+using System;
+
 namespace UserTracker
 {
     public class LastSeenTest
@@ -198,23 +201,35 @@ namespace UserTracker
         }
     }
 
-    public class UserTrackerTest
+    public class ApiTests
     {
+
         [Fact]
-        public void Expect_Online_When_UserIsOnline()
+        public void Expect_NumberofUsers_When_CorrectDateIsPassed()
         {
-            User theUser = new User(new UserData
+
+            // Arrange
+            using var client = new HttpClient();
+            using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7215/api/stats/users?date=2023-10-08T22:07:06.9711678"));
+            using var reader = new StreamReader(result.Content.ReadAsStream());
+            var stringContent = reader.ReadToEnd();
+            var jsonResponse = JsonSerializer.Deserialize<UserOnlineResponse>(stringContent, new JsonSerializerOptions()
             {
-                userId = "e13412b2-fe46-7149-6593-e47043f39c91",
-                nickname = "Terry_Weber",
-                firstName = "Terry",
-                lastName = "Weber",
-                registrationDate = "2022-10-24T17:46:53.1388008+00:00",
-                lastSeenDate = null,
-                isOnline = true
-            });
-            var userState = theUser.ToString();
-            Assert.Equal("Terry_Weber is online.", userState);
+                PropertyNameCaseInsensitive = true
+            })!;
+
+            // Act
+            int? usersOnline = jsonResponse.usersOnline;
+
+            // Assert
+            Assert.NotEmpty(stringContent);
+            Assert.NotNull(usersOnline);
+            Assert.NotEqual(0, usersOnline);
+        }
+
+        public class UserOnlineResponse
+        {
+            public int? usersOnline { get; set; }
         }
     }
 
