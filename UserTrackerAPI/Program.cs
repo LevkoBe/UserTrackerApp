@@ -1,3 +1,4 @@
+using System.Globalization;
 using UserTracker;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,12 +28,13 @@ app.MapGet("/", () => userLoader.GetAllUsers());
 app.MapGet("/formatted", () => userLoader.GetAllUsers().Select(user => user.ToString()));
 
 app.MapGet("/api/stats/users", (HttpContext context) =>
-{
+{ // works with this "https://localhost:7215/api/stats/users?date=2023-10-08T22:07:06.9711678"
     var date = context.Request.Query["date"];
-    if (DateTime.TryParse(date, out DateTime dateTime))
+    if (DateTime.TryParseExact(date, "yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime dateTime))
     {
-        int usersOnline = userActivityManager.GetUserActivitiesAtDateTime(dateTime);
-
+        int? usersOnline = userActivityManager.GetUserActivitiesAtDateTime(dateTime);
+        if (usersOnline == 0)
+        usersOnline = null;
         return Results.Json(new { usersOnline });
     }
     else
@@ -40,5 +42,6 @@ app.MapGet("/api/stats/users", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter");
     }
 });
+
 
 app.Run();
