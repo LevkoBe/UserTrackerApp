@@ -43,6 +43,29 @@ app.MapGet("/api/stats/users", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter");
     }
 });
+app.MapGet("/api/stats/user", (HttpContext context) =>
+{
+    string nickname = context.Request.Query["nickname"];
+    string dateParam = context.Request.Query["date"];
+
+    if (DateTime.TryParseExact(dateParam, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
+    {
+        var userOnlineResponse = userActivityManager.GetUserOnlineStatus(nickname, dateTime);
+
+        if (userOnlineResponse.WasUserOnline.HasValue)
+        {
+            return Results.Json(userOnlineResponse);
+        }
+        else
+        {
+            return Results.NotFound("User not found.");
+        }
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date parameter.");
+    }
+});
 
 
 app.Run();
