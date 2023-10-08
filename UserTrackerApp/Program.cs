@@ -1,29 +1,9 @@
 ﻿using System;
-using System.Text.Json;
 using System.Globalization;
+using System.Threading.Tasks;
 
-namespace LastSeenTest_goodGitStructure
+namespace UserTracker
 {
-    public interface IGetData
-    {
-        Response GetResponse(string url);
-    }
-
-    public class GetData : IGetData
-    {
-        public Response GetResponse(string url)
-        {
-            using var client = new HttpClient();
-            using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, url));
-            using var reader = new StreamReader(result.Content.ReadAsStream());
-            var stringContent = reader.ReadToEnd();
-            return JsonSerializer.Deserialize<Response>(stringContent, new JsonSerializerOptions()
-            {
-                PropertyNameCaseInsensitive = true
-            })!;
-        }
-    }
-
     class Program
     {
         static async Task Main(string[] args)
@@ -76,6 +56,10 @@ namespace LastSeenTest_goodGitStructure
             string apiUrl = "https://sef.podkolzin.consulting/api/users/lastSeen";
 
             UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
+
+            var userActivityManager = new UserActivityManager(userLoader);
+
+            await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30));
 
             User[] users = userLoader.GetAllUsers();
 

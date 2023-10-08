@@ -1,4 +1,4 @@
-using LastSeenTest_goodGitStructure;
+using UserTracker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,15 +15,30 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
-
 IGetData dataProvider = new GetData();
 string apiUrl = "https://sef.podkolzin.consulting/api/users/lastSeen";
 UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
-User[] users = userLoader.GetAllUsers();
 
+UserActivityManager userActivityManager = new UserActivityManager(userLoader);
 
-app.MapGet("/", () => users);
-app.MapGet("/formatted", () => users.Select(user => user.ToString()));
+Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30)));
+
+app.MapGet("/", () => userLoader.GetAllUsers());
+app.MapGet("/formatted", () => userLoader.GetAllUsers().Select(user => user.ToString()));
+
+app.MapGet("/api/stats/users", (HttpContext context) =>
+{
+    var date = context.Request.Query["date"];
+    if (DateTime.TryParse(date, out DateTime dateTime))
+    {
+        int usersOnline = userActivityManager.GetUserActivitiesAtDateTime(dateTime);
+
+        return Results.Json(new { usersOnline });
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date parameter");
+    }
+});
 
 app.Run();

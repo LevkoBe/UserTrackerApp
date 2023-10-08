@@ -1,5 +1,5 @@
 
-namespace LastSeenTest_goodGitStructure
+namespace UserTracker
 {
     public class LastSeenTest
     {
