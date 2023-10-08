@@ -18,12 +18,42 @@ namespace UserTracker
         public bool isOnline { get; set; }
         public List<TimePeriod> ActivityPeriods { get; set; }
 
-        public UserActivity() //string name
+        public UserActivity()
         {
-/*            nickname = name;
-            isOnline = false;
-            ActivityPeriods = new List<TimePeriod>();*/
+            // nothing
         }
+
+        public DateTime? GetNearestOnlineTime(DateTime dateTime)
+        {
+            DateTime? nearestOnlineTime = null;
+            TimeSpan nearestTimeDifference = TimeSpan.MaxValue;
+
+            foreach (var timePeriod in ActivityPeriods)
+            {
+                if (dateTime >= timePeriod.Start && dateTime <= timePeriod.End)
+                {
+                    return null;
+                }
+
+                TimeSpan startDifference = dateTime - timePeriod.Start;
+                TimeSpan endDifference = dateTime - timePeriod.End;
+
+                if (Math.Abs(startDifference.TotalSeconds) < nearestTimeDifference.TotalSeconds)
+                {
+                    nearestTimeDifference = startDifference;
+                    nearestOnlineTime = timePeriod.Start;
+                }
+
+                if (Math.Abs(endDifference.TotalSeconds) < nearestTimeDifference.TotalSeconds)
+                {
+                    nearestTimeDifference = endDifference;
+                    nearestOnlineTime = timePeriod.End;
+                }
+            }
+
+            return nearestOnlineTime;
+        }
+
 
         public void SetOnline()
         {

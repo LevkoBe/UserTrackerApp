@@ -20,6 +20,27 @@ namespace UserTracker
 
             LoadUserActivityFromJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
         }
+        public UserOnlineResponse GetUserOnlineStatus(string nickname, DateTime dateTime)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                bool wasUserOnline = userActivity.IsOnlineAtDateTime(dateTime);
+                DateTime? nearestOnlineTime = userActivity.GetNearestOnlineTime(dateTime);
+
+                return new UserOnlineResponse
+                {
+                    WasUserOnline = wasUserOnline,
+                    NearestOnlineTime = nearestOnlineTime
+                };
+            }
+
+            // If user not found, return null for both fields
+            return new UserOnlineResponse
+            {
+                WasUserOnline = null,
+                NearestOnlineTime = null
+            };
+        }
 
         public async Task StartDataFetching(TimeSpan fetchInterval)
         {
@@ -104,6 +125,13 @@ namespace UserTracker
             }
         }
 
+    }
+
+
+    public class UserOnlineResponse
+    {
+        public bool? WasUserOnline { get; set; }
+        public DateTime? NearestOnlineTime { get; set; }
     }
 
 }
