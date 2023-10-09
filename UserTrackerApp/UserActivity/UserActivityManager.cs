@@ -20,6 +20,38 @@ namespace UserTracker
 
             LoadUserActivityFromJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
         }
+        public int? PredictUsersOnline(DateTime futureDate)
+        {
+            DayOfWeek futureDayOfWeek = futureDate.DayOfWeek;
+            Dictionary<DayOfWeek, int> usersPerDay = new Dictionary<DayOfWeek, int>();
+
+            foreach (var userActivity in _userActivities.Values)
+            {
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start.DayOfWeek == futureDayOfWeek &&
+                        timePeriod.Start.TimeOfDay <= futureDate.TimeOfDay &&
+                        timePeriod.End.TimeOfDay >= futureDate.TimeOfDay)
+                    {
+                        if (!usersPerDay.ContainsKey(futureDayOfWeek))
+                        {
+                            usersPerDay[futureDayOfWeek] = 1;
+                        }
+                        else
+                        {
+                            usersPerDay[futureDayOfWeek]++;
+                        }
+                    }
+                }
+            }
+
+            int totalUsers = usersPerDay.Values.Sum();
+            int numberOfDays = usersPerDay.Count;
+            int averageUsers = numberOfDays > 0 ? totalUsers / numberOfDays : 0;
+
+            return averageUsers > 0 ? averageUsers : null;
+        }
+
         public UserOnlineResponse GetUserOnlineStatus(string nickname, DateTime dateTime)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))

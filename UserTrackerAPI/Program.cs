@@ -66,6 +66,20 @@ app.MapGet("/api/stats/user", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter.");
     }
 });
+app.MapGet("/api/predictions/users", (HttpContext context) =>
+{
+    var dateStr = context.Request.Query["date"].ToString();
+
+    if (DateTime.TryParseExact(dateStr, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
+    {
+        var predictedUsers = userActivityManager.PredictUsersOnline(futureDate);
+        return Results.Json(new { usersOnline = predictedUsers });
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date parameter");
+    }
+});
 
 
 app.Run();

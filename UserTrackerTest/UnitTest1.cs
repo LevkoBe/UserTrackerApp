@@ -298,6 +298,29 @@ namespace UserTracker
             Assert.Equal(wasUserOnline, false);
         }
 
+        [Fact]
+        public void Expect_MoreThanOneUserOnline_When_predictAboutFuture()
+        {
+
+            // Arrange
+            using var client = new HttpClient();
+            using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7215/api/predictions/users?date=2025-12-07-22:07"));
+            using var reader = new StreamReader(result.Content.ReadAsStream());
+            var stringContent = reader.ReadToEnd();
+            var jsonResponse = JsonSerializer.Deserialize<UserOnlineResponse>(stringContent, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            })!;
+
+            // Act
+            int? usersOnline = jsonResponse.usersOnline;
+
+            // Assert
+            Assert.NotEmpty(stringContent);
+            Assert.NotNull(usersOnline);
+            Assert.NotEqual(0, usersOnline);
+        }
+
         public class UserOnlineResponse
         {
             public int? usersOnline { get; set; }
