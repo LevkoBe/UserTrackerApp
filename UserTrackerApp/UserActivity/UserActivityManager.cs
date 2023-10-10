@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -51,6 +52,43 @@ namespace UserTracker
 
             return averageUsers > 0 ? averageUsers : null;
         }
+
+        public bool PredictUserOnline(string nickname, DateTime futureDate, double tolerance, out double onlineChance)
+        {
+            if (_userActivities.TryGetValue(nickname, out UserActivity userActivity))
+            {
+                int founds = 0;
+                int weeks = 0;
+                int lastWeek = -1;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start.DayOfWeek == futureDate.DayOfWeek &&
+                        timePeriod.Start.TimeOfDay <= futureDate.TimeOfDay &&
+                        timePeriod.End.TimeOfDay >= futureDate.TimeOfDay)
+                    {
+                        founds++;
+                    }
+
+                    int currentWeek = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(timePeriod.Start, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+                    if (currentWeek != lastWeek)
+                    {
+                        weeks++;
+                        lastWeek = currentWeek;
+                    }
+                }
+
+                onlineChance = weeks == 0 ? 0.0 : (double)founds / weeks;
+                bool willBeOnline = onlineChance >= tolerance;
+
+                return willBeOnline;
+            }
+
+            onlineChance = 0.0;
+            return false;
+        }
+
 
         public UserOnlineResponse GetUserOnlineStatus(string nickname, DateTime dateTime)
         {

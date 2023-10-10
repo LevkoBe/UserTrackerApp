@@ -80,6 +80,31 @@ app.MapGet("/api/predictions/users", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter");
     }
 });
+app.MapGet("/api/predictions/user", (HttpContext context) =>
+{
+    var dateStr = context.Request.Query["date"].ToString();
+    var toleranceStr = context.Request.Query["tolerance"].ToString();
+    var nickname = context.Request.Query["nickname"].ToString();
+
+    if (DateTime.TryParseExact(dateStr, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
+    {
+        if (double.TryParse(toleranceStr, out double tolerance))
+        {
+            bool willBeOnline = userActivityManager.PredictUserOnline(nickname, futureDate, tolerance, out double onlineChance);
+            return Results.Json(new { willBeOnline, onlineChance });
+        }
+        else
+        {
+            return Results.BadRequest("Invalid date or tolerance parameter");
+        }
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date or tolerance parameter");
+    }
+
+});
+
 
 
 app.Run();
