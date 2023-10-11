@@ -19,7 +19,7 @@ namespace UserTracker
             _userLoader = userLoader;
             _userActivities = new Dictionary<string, UserActivity>();
 
-            LoadUserActivityFromJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+            LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
         }
         public int? PredictUsersOnline(DateTime futureDate)
         {
