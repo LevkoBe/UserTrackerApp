@@ -12,6 +12,10 @@ namespace UserTracker
         {
             public int? usersOnline { get; set; }
         }
+        public class TotalTime
+        {
+            public int? totalTime { get; set; }
+        }
 
         public class WasUserOnline
         {

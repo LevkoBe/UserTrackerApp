@@ -116,13 +116,21 @@ namespace UserTracker
         {
             while (true)
             {
-                User[] users = _userLoader.GetAllUsers();
-
                 FetchAndUpdateUserActivities();
 
                 SaveUserActivityToJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
 
                 await Task.Delay(fetchInterval);
+            }
+        }
+
+        public void LoadDataPeriodically()
+        {
+            while (true)
+            {
+                FetchAndUpdateUserActivities();
+                SaveUserActivityToJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                Thread.Sleep(30000);
             }
         }
 

@@ -20,16 +20,16 @@ namespace UserTrackerTest.CountTotalTimeTests
         {
             // Arrange
             using var client = new HttpClient();
-            using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7215/api/stats/user/total?nickname={nickname}"));
+            using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, $"https://localhost:7215/api/stats/user/total?nickname={nickname}"));
             using var reader = new StreamReader(result.Content.ReadAsStream());
             var stringContent = reader.ReadToEnd();
-            var jsonResponse = JsonSerializer.Deserialize<UserOnline>(stringContent, new JsonSerializerOptions()
+            var jsonResponse = JsonSerializer.Deserialize<TotalTime>(stringContent, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true
             })!;
 
             // Act
-            int? secondsTotally = jsonResponse.usersOnline;
+            int? secondsTotally = jsonResponse.totalTime;
 
             // Assert
             Assert.NotEmpty(stringContent);
@@ -47,14 +47,14 @@ namespace UserTrackerTest.CountTotalTimeTests
             using var result = client.Send(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7215/api/predictions/user?date=2023-10-08-22:18&tolerance=0,85&nickname=NonExisting"));
             using var reader = new StreamReader(result.Content.ReadAsStream());
             var stringContent = reader.ReadToEnd();
-            var jsonResponse = JsonSerializer.Deserialize<UserOnline>(stringContent, new JsonSerializerOptions()
+            var jsonResponse = JsonSerializer.Deserialize<TotalTime>(stringContent, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true
             })!;
 
 
             // Act
-            int? secondsTotally = jsonResponse.usersOnline;
+            int? secondsTotally = jsonResponse.totalTime;
 
             // Assert
             Assert.NotEmpty(stringContent);
