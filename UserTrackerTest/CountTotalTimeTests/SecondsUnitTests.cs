@@ -47,7 +47,7 @@ namespace UserTracker
                 }
             };
             var userActivity2 = new UserActivity();
-            userActivity2.nickname = nickname;
+            userActivity2.nickname = "SecondNick";
             userActivity2.ActivityPeriods = new List<TimePeriod>
             {
                 new TimePeriod
@@ -62,7 +62,7 @@ namespace UserTracker
                 }
             };
             var userActivity3 = new UserActivity();
-            userActivity3.nickname = nickname;
+            userActivity3.nickname = "ThirdNick";
             userActivity3.ActivityPeriods = new List<TimePeriod>
             {
                 new TimePeriod
@@ -76,10 +76,12 @@ namespace UserTracker
                 new Dictionary<string, UserActivity>
             {
                 {"Doug93", userActivity1 },
-                {"Nathaniel6", userActivity2 },
-                {"Terry_Weber", userActivity3 },
-                {"Willard66", userActivity2 },
-                {"Nick37", userActivity1 }
+                {"Nathaniel6", userActivity1 },
+                {"Terry_Weber", userActivity1 },
+                {"Willard66", userActivity1 },
+                {"Nick37", userActivity1 },
+                {"SecondNick", userActivity2 },
+                {"ThirdNick", userActivity3 }
             });
             // Act
             long? secondsTotally = userActivities.GetTotalOnlineTimeForUser(nickname);
