@@ -14,7 +14,7 @@ namespace UserTracker
         private readonly UserLoader? _userLoader;
         private readonly Dictionary<string, UserActivity> _userActivities;
 
-        public UserActivityManager(UserLoader? userLoader=null, Dictionary<string, UserActivity>? userActivities = null)
+        public UserActivityManager(UserLoader? userLoader = null, Dictionary<string, UserActivity>? userActivities = null)
         {
             _userLoader = userLoader;
             _userActivities = userActivities != null ? userActivities : new Dictionary<string, UserActivity>();
@@ -24,7 +24,23 @@ namespace UserTracker
 
         public long GetTotalOnlineTimeForUser(string nickname)
         {
-            throw new NotImplementedException();
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                long totalTime = 0;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.End != default)
+                    {
+                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
+                        totalTime += (long)periodTime.TotalSeconds;
+                    }
+                }
+
+                return totalTime;
+            }
+
+            return 0; // User not found or has no online activity.
         }
 
 

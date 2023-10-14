@@ -11,12 +11,14 @@ namespace UserTracker
     public class CountSecondsUnitTestsClass1
     {
         [Theory]
-        [InlineData("Doug93")]
-        [InlineData("Nathaniel6")]
-        [InlineData("Terry_Weber")]
-        [InlineData("Willard66")]
-        [InlineData("Nick37")]
-        public void Expect_ManySecondsOnline_When_askAboutUser(string nickname)
+        [InlineData("Doug93", true)]
+        [InlineData("Nathaniel6", true)]
+        [InlineData("Nathan", false)]
+        [InlineData("Terry_Weber", true)]
+        [InlineData("Terry", false)]
+        [InlineData("Willard66", true)]
+        [InlineData("Nick37", true)]
+        public void Expect_ManySecondsOnline_When_askAboutUser(string nickname, bool working)
         {
             // Arrange
             var userActivity1 = new UserActivity();
@@ -55,16 +57,6 @@ namespace UserTracker
                 },
                 new TimePeriod
                 {
-                    Start = DateTime.Parse("2023-10-08T22:59:17.9205683+03:00"),
-                    End = DateTime.Parse("2023-10-08T22:59:52.965938+03:00")
-                },
-                new TimePeriod
-                {
-                    Start = DateTime.Parse("2023-10-08T23:00:27.9960034+03:00"),
-                    End = DateTime.Parse("2023-10-08T23:35:57.292808+03:00")
-                },
-                new TimePeriod
-                {
                     Start = DateTime.Parse("2023-10-08T23:38:17.3219311+03:00"),
                     End = DateTime.Parse("2023-10-08T23:40:09.6822659+03:00")
                 }
@@ -73,21 +65,6 @@ namespace UserTracker
             userActivity3.nickname = nickname;
             userActivity3.ActivityPeriods = new List<TimePeriod>
             {
-                new TimePeriod
-                {
-                    Start = DateTime.Parse("2023-10-08T22:18:27.1940432+03:00"),
-                    End = DateTime.Parse("2023-10-08T22:20:49.9411621+03:00")
-                },
-                new TimePeriod
-                {
-                    Start = DateTime.Parse("2023-10-08T22:59:17.9205683+03:00"),
-                    End = DateTime.Parse("2023-10-08T22:59:52.965938+03:00")
-                },
-                new TimePeriod
-                {
-                    Start = DateTime.Parse("2023-10-08T23:00:27.9960034+03:00"),
-                    End = DateTime.Parse("2023-10-08T23:35:57.292808+03:00")
-                },
                 new TimePeriod
                 {
                     Start = DateTime.Parse("2023-10-08T23:38:17.3219311+03:00"),
@@ -109,7 +86,7 @@ namespace UserTracker
 
             // Assert
             Assert.NotNull(secondsTotally);
-            Assert.Equal(0, secondsTotally);
+            Assert.Equal(secondsTotally > 0, working);
         }
     }
 }
