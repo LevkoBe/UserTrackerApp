@@ -6,11 +6,11 @@ namespace UserTracker
     public class ApiUnitTests
     {
         [Theory]
-        [InlineData("https://localhost:7215/api/stats/user/total?nickname=Doug93")]
-        [InlineData("https://localhost:7215/api/stats/user/total?nickname=Nathaniel6")]
-        [InlineData("https://localhost:7215/api/stats/user/total?nickname=Terry_Weber")]
-        [InlineData("https://localhost:7215/api/stats/user/total?nickname=Willard66")]
-        [InlineData("https://localhost:7215/api/stats/user/total?nickname=Nick37")]
+        [InlineData("https://localhost:7215/api/stats/user/average?nickname=Doug93")]
+        [InlineData("https://localhost:7215/api/stats/user/average?nickname=Nathaniel6")]
+        [InlineData("https://localhost:7215/api/stats/user/average?nickname=Terry_Weber")]
+        [InlineData("https://localhost:7215/api/stats/user/average?nickname=Willard66")]
+        [InlineData("https://localhost:7215/api/stats/user/average?nickname=Nick37")]
         public void Expect_WorkingEndpoint_When_CorrectUrl(string url)
         {
             // Arrange

@@ -28,6 +28,12 @@ namespace UserTracker
             public bool? willBeOnline { get; set; }
             public double? chance { get; set; }
         }
+
+        public class AverageTime
+        {
+            public long? weeklyAverage { get; set; }
+            public long? dailyAverage { get; set; }
+        }
     }
 
 }
