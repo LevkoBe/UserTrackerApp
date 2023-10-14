@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,6 +63,60 @@ namespace UserTracker
                 isOnline = true;
                 ActivityPeriods.Add(new TimePeriod { Start = DateTime.Now });
             }
+        }
+
+        public int CountWeeks()
+        {
+
+            HashSet<int> weeks = new HashSet<int>();
+
+            foreach (var timePeriod in ActivityPeriods)
+            {
+                if (timePeriod.End != default)
+                {
+                    DateTime current = timePeriod.Start;
+                    while (current <= timePeriod.End)
+                    {
+                        int week = GetIso8601WeekOfYear(current);
+                        weeks.Add(week);
+                        current = current.AddDays(1);
+                    }
+                }
+            }
+
+            return weeks.Count;
+        }
+
+        public int CountDays()
+        {
+
+            HashSet<DateTime> days = new HashSet<DateTime>();
+
+            foreach (var timePeriod in ActivityPeriods)
+            {
+                if (timePeriod.End != default)
+                {
+                    DateTime current = timePeriod.Start;
+                    while (current.Date <= timePeriod.End.Date)
+                    {
+                        days.Add(current.Date);
+                        current = current.AddDays(1);
+                    }
+                }
+            }
+
+            return days.Count;
+        }
+
+        private int GetIso8601WeekOfYear(DateTime time)
+        {
+            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                time = time.AddDays(3);
+            }
+
+            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
 
         public void SetOffline()

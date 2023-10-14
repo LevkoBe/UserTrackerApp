@@ -17,10 +17,42 @@ namespace UserTracker
         public UserActivityManager(UserLoader? userLoader = null, Dictionary<string, UserActivity>? userActivities = null)
         {
             _userLoader = userLoader;
-            _userActivities = userActivities != null ? userActivities : new Dictionary<string, UserActivity>();
-
-            LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+            if (_userActivities != null)
+            {
+                LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+            }
+            else
+            {
+                _userActivities = userActivities != null ? userActivities : new Dictionary<string, UserActivity>();
+            }
         }
+
+        public long? GetWeeklyAverageOnlineTimeForUser(string nickname)
+        {
+            long totalTime = GetTotalOnlineTimeForUser(nickname);
+            long totalWeeks = CountWeeksUserOnline(nickname);
+
+            if (totalWeeks > 0)
+            {
+                return totalTime / totalWeeks;
+            }
+
+            return null;
+        }
+
+        public long? GetDailyAverageOnlineTimeForUser(string nickname)
+        {
+            long totalTime = GetTotalOnlineTimeForUser(nickname);
+            long totalDays = CountWeeksUserOnline(nickname);  
+
+            if (totalDays > 0)
+            {
+                return totalTime / totalDays;
+            }
+
+            return null;
+        }
+
 
         public long GetTotalOnlineTimeForUser(string nickname)
         {
@@ -226,7 +258,30 @@ namespace UserTracker
             }
         }
 
+        public int CountWeeksUserOnline(string nickname)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                return userActivity.CountWeeks();
+            }
+
+            return 0;
+        }
+
+        public int CountDaysUserOnline(string nickname)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                return userActivity.CountDays();
+            }
+
+            return 0;
+        }
+
+
     }
+
+
 
 
     public class UserOnlineResponse
