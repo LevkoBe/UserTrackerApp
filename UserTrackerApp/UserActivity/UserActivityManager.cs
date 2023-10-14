@@ -11,16 +11,23 @@ namespace UserTracker
 {
     public class UserActivityManager
     {
-        private readonly UserLoader _userLoader;
+        private readonly UserLoader? _userLoader;
         private readonly Dictionary<string, UserActivity> _userActivities;
 
-        public UserActivityManager(UserLoader userLoader)
+        public UserActivityManager(UserLoader? userLoader=null, Dictionary<string, UserActivity>? userActivities = null)
         {
             _userLoader = userLoader;
-            _userActivities = new Dictionary<string, UserActivity>();
+            _userActivities = userActivities != null ? userActivities : new Dictionary<string, UserActivity>();
 
             LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
         }
+
+        public long GetTotalOnlineTimeForUser(string nickname)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public int? PredictUsersOnline(DateTime futureDate)
         {
             DayOfWeek futureDayOfWeek = futureDate.DayOfWeek;

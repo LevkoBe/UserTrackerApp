@@ -31,3 +31,8 @@ namespace UserTracker
     }
 
 }
+
+// when was online should be added
+// work with structures, not with urls
+// check each function, each class
+// for each scenario
