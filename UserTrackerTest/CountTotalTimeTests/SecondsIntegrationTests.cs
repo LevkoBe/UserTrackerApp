@@ -6,9 +6,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static UserTracker.ApiTests;
 
+// That's an integrational test, because we check only 2 things here:
+// 1. Fetch data from endpoint
+// 2. Process data in the function
+// At the same time it appears to be e2e test, as we have nothing more to check
+
 namespace UserTrackerTest.CountTotalTimeTests
 {
-    public class CountSecondsForUserTests
+    public class SecondsIntegrationTests
     {
         [Theory]
         [InlineData("Doug93")]

@@ -104,6 +104,20 @@ app.MapGet("/api/predictions/user", (HttpContext context) =>
     }
 
 });
+app.MapGet("/api/stats/user/total", (HttpContext context) =>
+{
+    var nickname = context.Request.Query["nickname"].ToString();
+
+    if (!string.IsNullOrEmpty(nickname))
+    {
+        long totalTime = userActivityManager.GetTotalOnlineTimeForUser(nickname);
+        return Results.Json(new { totalTime });
+    }
+    else
+    {
+        return Results.BadRequest("Invalid nickname parameter");
+    }
+});
 
 
 
