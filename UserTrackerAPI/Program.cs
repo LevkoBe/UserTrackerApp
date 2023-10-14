@@ -118,6 +118,22 @@ app.MapGet("/api/stats/user/total", (HttpContext context) =>
         return Results.BadRequest("Invalid nickname parameter");
     }
 });
+app.MapGet("/api/stats/user/average", (HttpContext context) =>
+{
+    var nickname = context.Request.Query["nickname"].ToString();
+
+    if (!string.IsNullOrEmpty(nickname))
+    {
+        long? weeklyAverage = userActivityManager.GetWeeklyAverageOnlineTimeForUser(nickname);
+        long? dailyAverage = userActivityManager.GetDailyAverageOnlineTimeForUser(nickname);
+        return Results.Json(new { weeklyAverage, dailyAverage });
+    }
+    else
+    {
+        return Results.BadRequest("Invalid nickname parameter");
+    }
+});
+
 
 
 

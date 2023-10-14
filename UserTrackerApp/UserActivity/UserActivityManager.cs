@@ -17,13 +17,14 @@ namespace UserTracker
         public UserActivityManager(UserLoader? userLoader = null, Dictionary<string, UserActivity>? userActivities = null)
         {
             _userLoader = userLoader;
-            if (_userActivities != null)
+            if (userActivities == null)
             {
+                _userActivities = new Dictionary<string, UserActivity>();
                 LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
             }
             else
             {
-                _userActivities = userActivities != null ? userActivities : new Dictionary<string, UserActivity>();
+                _userActivities = userActivities!;
             }
         }
 
