@@ -13,9 +13,11 @@ namespace UserTracker
     {
         private readonly UserLoader? _userLoader;
         private readonly Dictionary<string, UserActivity> _userActivities;
+        public List<string> forgottenUsers = new List<string>();
 
         public UserActivityManager(UserLoader? userLoader = null, Dictionary<string, UserActivity>? userActivities = null)
         {
+            forgottenUsers = LoadForgottenUsersFromFile("forgottenUsers.json");
             _userLoader = userLoader;
             if (userActivities == null)
             {
@@ -27,6 +29,23 @@ namespace UserTracker
                 _userActivities = userActivities!;
             }
         }
+
+        public bool UserExists(string nickname)
+        {
+            return _userActivities.ContainsKey(nickname);
+        }
+
+        public void ForgetUserData(string nickname)
+        {
+            if (_userActivities.ContainsKey(nickname))
+            {
+                _userActivities.Remove(nickname);
+                forgottenUsers.Add(nickname);
+                SaveForgottenUsersToFile("forgottenUsers.json");
+            }
+        }
+
+
 
         public long? GetWeeklyAverageOnlineTimeForUser(string nickname)
         {
@@ -174,19 +193,9 @@ namespace UserTracker
             {
                 FetchAndUpdateUserActivities();
 
-                SaveUserActivityToJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                SaveUserActivityToJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
 
                 await Task.Delay(fetchInterval);
-            }
-        }
-
-        public void LoadDataPeriodically()
-        {
-            while (true)
-            {
-                FetchAndUpdateUserActivities();
-                SaveUserActivityToJson("D:\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
-                Thread.Sleep(30000);
             }
         }
 
@@ -204,6 +213,10 @@ namespace UserTracker
 
             foreach (var user in users)
             {
+                if (forgottenUsers.Contains(user.userData.nickname!))
+                {
+                    continue;
+                }
                 if (!_userActivities.ContainsKey(user.userData.nickname!))
                 {
                     _userActivities[user.userData.nickname!] = new UserActivity();
@@ -226,6 +239,28 @@ namespace UserTracker
 
         }
 
+        private void SaveForgottenUsersToFile(string filePath)
+        {
+            var json = JsonSerializer.Serialize(forgottenUsers, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            File.WriteAllText(filePath, json);
+        }
+
+        private List<string> LoadForgottenUsersFromFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                var json = File.ReadAllText(filePath);
+                return JsonSerializer.Deserialize<List<string>>(json);
+            }
+
+            return new List<string>();
+        }
+
+
         public void SaveUserActivityToJson(string filePath)
         {
             var userActivityList = _userActivities.Values.ToList();
@@ -245,7 +280,7 @@ namespace UserTracker
                 var jsonOptions = new JsonSerializerOptions
                 {
                     WriteIndented = true,
-                    IncludeFields = true, // Include non-public fields
+                    IncludeFields = true,
                 };
 
                 var userActivityList = JsonSerializer.Deserialize<List<UserActivity>>(json, jsonOptions);
@@ -254,6 +289,11 @@ namespace UserTracker
                 _userActivities.Clear();
                 foreach (var userActivity in userActivityList)
                 {
+
+                    if (forgottenUsers.Contains(userActivity.nickname!))
+                    {
+                        continue;
+                    }
                     _userActivities[userActivity.nickname] = userActivity;
                 }
             }

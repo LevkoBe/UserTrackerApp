@@ -22,7 +22,7 @@ UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
 
 UserActivityManager userActivityManager = new UserActivityManager(userLoader);
 
-Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30)));
+await Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30)));
 
 
 
@@ -131,6 +131,20 @@ app.MapGet("/api/stats/user/average", (HttpContext context) =>
     else
     {
         return Results.BadRequest("Invalid nickname parameter");
+    }
+});
+app.MapGet("/api/user/forget", (HttpContext context) =>
+{   
+    var nickname = context.Request.Query["nickname"].ToString();
+
+    if (userActivityManager.UserExists(nickname))
+    {
+        userActivityManager.ForgetUserData(nickname);
+        return Results.Json(new { userId = nickname });
+    }
+    else
+    {
+        return Results.Json(new { message = "User not found" });
     }
 });
 
