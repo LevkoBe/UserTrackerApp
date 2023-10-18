@@ -1,4 +1,4 @@
-﻿namespace UserTracker.Tests
+﻿namespace UserTracker
 {
     public class ReportTests
     {
