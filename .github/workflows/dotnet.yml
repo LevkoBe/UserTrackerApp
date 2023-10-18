@@ -24,5 +24,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+    - name: AverageIntegrationTests
+      run: dotnet test AverageIntegrationTests --no-build --verbosity normal
+    - name: CountUnitTests
+      run: dotnet test CountUnitTests --no-build --verbosity normal
+    - name: FindAverageUnitTests
+      run: dotnet test FindAverageUnitTests --no-build --verbosity normal
