@@ -22,12 +22,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\UserTrackerApp\UserTrackerApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Reports\" />
-  </ItemGroup>
-
 </Project>

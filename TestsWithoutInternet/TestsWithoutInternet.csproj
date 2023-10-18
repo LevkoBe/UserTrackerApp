@@ -23,11 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UserTrackerAPI\UserTrackerAPI.csproj" />
     <ProjectReference Include="..\UserTrackerApp\UserTrackerApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Reports\" />
   </ItemGroup>
 
 </Project>
