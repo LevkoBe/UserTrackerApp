@@ -25,4 +25,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: FormattingTests
-      run: dotnet test FormattingTests --no-build --verbosity normal
+      run: dotnet test FormattingTests.cs --no-build --verbosity normal
