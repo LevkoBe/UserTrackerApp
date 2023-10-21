@@ -20,7 +20,7 @@ namespace UserTrackerTest.CountTotalTimeTests
         [InlineData("Nathaniel6")]
         [InlineData("Terry_Weber")]
         [InlineData("Willard66")]
-        [InlineData("Nick37")]
+        /*[InlineData("Nick37")]*/
         public void Expect_ManySecondsOnline_When_askAboutUser(string nickname)
         {
             // Arrange

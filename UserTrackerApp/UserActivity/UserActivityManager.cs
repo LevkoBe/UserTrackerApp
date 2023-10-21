@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UserTracker
 {
@@ -37,20 +38,18 @@ namespace UserTracker
 
         public void ForgetUserData(string nickname)
         {
-            if (_userActivities.ContainsKey(nickname))
-            {
-                _userActivities.Remove(nickname);
-                forgottenUsers.Add(nickname);
-                SaveForgottenUsersToFile("forgottenUsers.json");
-            }
+            SaveForgottenUsersToFile(nickname);
+            _userActivities.Remove(nickname);
+            forgottenUsers.Add(nickname);
+            SaveForgottenUsersToFile("forgottenUsers.json");
         }
 
 
 
-        public long? GetWeeklyAverageOnlineTimeForUser(string nickname)
+        public long? GetWeeklyAverageOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             long totalTime = GetTotalOnlineTimeForUser(nickname);
-            long totalWeeks = CountWeeksUserOnline(nickname);
+            long totalWeeks = CountWeeksUserOnline(nickname, fromDate, toDate);
 
             if (totalWeeks > 0)
             {
@@ -60,10 +59,10 @@ namespace UserTracker
             return null;
         }
 
-        public long? GetDailyAverageOnlineTimeForUser(string nickname)
+        public long? GetDailyAverageOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             long totalTime = GetTotalOnlineTimeForUser(nickname);
-            long totalDays = CountWeeksUserOnline(nickname);  
+            long totalDays = CountDaysUserOnline(nickname, fromDate, toDate);  
 
             if (totalDays > 0)
             {
@@ -298,26 +297,26 @@ namespace UserTracker
                 }
             }
         }
-
-        public int CountWeeksUserOnline(string nickname)
+        public int CountWeeksUserOnline(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
-                return userActivity.CountWeeks();
+                return userActivity.CountWeeks(fromDate, toDate);
             }
 
             return 0;
         }
 
-        public int CountDaysUserOnline(string nickname)
+        public int CountDaysUserOnline(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
-                return userActivity.CountDays();
+                return userActivity.CountDays(fromDate, toDate);
             }
 
             return 0;
         }
+
 
 
     }

@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Text.Json;
 using UserTracker;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +25,8 @@ UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
 
 UserActivityManager userActivityManager = new UserActivityManager(userLoader);
 
-await Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30)));
-
+// await Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30))); // file is already too big
+ReportManager reportManager = new();
 
 
 app.MapGet("/", () => userLoader.GetAllUsers());
@@ -147,8 +150,90 @@ app.MapGet("/api/user/forget", (HttpContext context) =>
         return Results.Json(new { message = "User not found" });
     }
 });
+app.MapPost("/api/report/{reportName}", async (HttpContext context) =>
+{
+    var reportName = context.Request.RouteValues["reportName"].ToString();
+    using var reader = new StreamReader(context.Request.Body);
+    var requestBody = await reader.ReadToEndAsync();
+    if (!string.IsNullOrWhiteSpace(requestBody))
+    {
+        try
+        {
+            var reportConfig = JsonSerializer.Deserialize<ReportConfiguration>(requestBody, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (reportConfig != null)
+            {
+                var success = reportManager.CreateReport(reportName, reportConfig);
+
+                if (success)
+                {
+                    return Results.Ok();
+                }
+                else
+                {
+                    return Results.BadRequest("Report with the same name already exists.");
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            return Results.BadRequest("Invalid report configuration.");
+        }
+    }
+
+    return Results.BadRequest("Invalid or empty report configuration.");
+});
 
 
+app.MapGet("/api/report/{reportName}", (HttpContext context) =>
+{
+    var reportName = context.Request.RouteValues["reportName"].ToString();
+    var fromStr = context.Request.Query["from"].ToString();
+    var toStr = context.Request.Query["to"].ToString();
+
+    if (DateTime.TryParseExact(fromStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fromDate) &&
+        DateTime.TryParseExact(toStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime toDate))
+    {
+        var report = reportManager.GetReport(reportName);
+
+        if (report != null)
+        {
+            var reportData = new List<object>();
+            foreach (var userNickname in report.UserNicknames)
+            {
+                var userReportData = new
+                {
+                    userId = userNickname,
+                    metrics = new List<object>()
+                };
+
+                foreach (var metric in report.Metrics)
+                {
+                    // Perform necessary computations for each metric and add it to the metrics list
+                    // For example:
+                    if (metric == "dailyAverage")
+                    {
+                        long? dailyAverage = userActivityManager.GetDailyAverageOnlineTimeForUser(userNickname, fromDate, toDate);
+                        userReportData.metrics.Add(new { dailyAverage });
+                    }
+                }
+                reportData.Add(userReportData);
+            }
+            return Results.Json(reportData);
+        }
+        else
+        {
+            return Results.NotFound("Report not found.");
+        }
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date parameters.");
+    }
+});
 
 
 app.Run();

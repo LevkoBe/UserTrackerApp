@@ -16,7 +16,7 @@ namespace UserTrackerTest.GDPR
         {
             // Arrange
             var nickname = "Nick37";
-            var filename = "forgottenUsers.json";
+            var filename = "C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerAPI\\forgottenUsers.json";
 
             var originalContent = File.ReadAllText(filename);
             var existingList = JsonSerializer.Deserialize<List<string>>(originalContent);
