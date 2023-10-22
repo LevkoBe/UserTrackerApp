@@ -31,6 +31,69 @@ namespace UserTracker
             }
         }
 
+        public long? GetMinimumDailyOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                if (fromDate == null)
+                    fromDate = DateTime.MinValue;
+                if (toDate == null)
+                    toDate = DateTime.MaxValue;
+
+                long? minOnlineTime = null;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start >= fromDate && timePeriod.End <= toDate)
+                    {
+                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
+                        long onlineTime = (long)periodTime.TotalSeconds;
+
+                        if (!minOnlineTime.HasValue || onlineTime < minOnlineTime)
+                        {
+                            minOnlineTime = onlineTime;
+                        }
+                    }
+                }
+
+                return minOnlineTime;
+            }
+
+            return null;
+        }
+
+        public long? GetMaximumDailyOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                if (fromDate == null)
+                    fromDate = DateTime.MinValue;
+                if (toDate == null)
+                    toDate = DateTime.MaxValue;
+
+                long? maxOnlineTime = null;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start >= fromDate && timePeriod.End <= toDate)
+                    {
+                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
+                        long onlineTime = (long)periodTime.TotalSeconds;
+
+                        if (!maxOnlineTime.HasValue || onlineTime > maxOnlineTime)
+                        {
+                            maxOnlineTime = onlineTime;
+                        }
+                    }
+                }
+
+                return maxOnlineTime;
+            }
+
+            return null;
+        }
+
+
         public bool UserExists(string nickname)
         {
             return _userActivities.ContainsKey(nickname);
@@ -72,8 +135,7 @@ namespace UserTracker
             return null;
         }
 
-
-        public long GetTotalOnlineTimeForUser(string nickname)
+        public long GetTotalOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
@@ -83,8 +145,22 @@ namespace UserTracker
                 {
                     if (timePeriod.End != default)
                     {
-                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
-                        totalTime += (long)periodTime.TotalSeconds;
+                        DateTime periodStart = timePeriod.Start;
+                        DateTime periodEnd = timePeriod.End;
+                        if (fromDate.HasValue)
+                        {
+                            periodStart = periodStart < fromDate.Value ? fromDate.Value : periodStart;
+                        }
+                        if (toDate.HasValue)
+                        {
+                            periodEnd = periodEnd > toDate.Value ? toDate.Value : periodEnd;
+                        }
+
+                        if (periodStart < periodEnd)
+                        {
+                            TimeSpan periodTime = periodEnd - periodStart;
+                            totalTime += (long)periodTime.TotalSeconds;
+                        }
                     }
                 }
 
@@ -93,6 +169,7 @@ namespace UserTracker
 
             return 0; // User not found or has no online activity.
         }
+
 
 
         public int? PredictUsersOnline(DateTime futureDate)
@@ -320,8 +397,6 @@ namespace UserTracker
 
 
     }
-
-
 
 
     public class UserOnlineResponse

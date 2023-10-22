@@ -188,7 +188,7 @@ app.MapPost("/api/report/{reportName}", async (HttpContext context) =>
 });
 
 
-app.MapGet("/api/report/{reportName}", (HttpContext context) =>
+app.MapGet("/api/report/{reportName}", async (HttpContext context) =>
 {
     var reportName = context.Request.RouteValues["reportName"].ToString();
     var fromStr = context.Request.Query["from"].ToString();
@@ -202,26 +202,13 @@ app.MapGet("/api/report/{reportName}", (HttpContext context) =>
         if (report != null)
         {
             var reportData = new List<object>();
+            var userReportDataGenerator = new UserReportData(userActivityManager, report, fromDate, toDate);
             foreach (var userNickname in report.UserNicknames)
             {
-                var userReportData = new
-                {
-                    userId = userNickname,
-                    metrics = new List<object>()
-                };
-
-                foreach (var metric in report.Metrics)
-                {
-                    // Perform necessary computations for each metric and add it to the metrics list
-                    // For example:
-                    if (metric == "dailyAverage")
-                    {
-                        long? dailyAverage = userActivityManager.GetDailyAverageOnlineTimeForUser(userNickname, fromDate, toDate);
-                        userReportData.metrics.Add(new { dailyAverage });
-                    }
-                }
+                var userReportData = await userReportDataGenerator.GenerateReportData(userNickname);
                 reportData.Add(userReportData);
             }
+
             return Results.Json(reportData);
         }
         else
