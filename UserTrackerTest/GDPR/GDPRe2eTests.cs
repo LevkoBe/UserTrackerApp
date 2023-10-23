@@ -23,8 +23,8 @@ namespace UserTrackerTest.GDPR
 
             IGetData dataProvider = new GetData();
             string apiUrl = "https://sef.podkolzin.consulting/api/users/lastSeen";
-            UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
-            UserActivityManager userActivityManager = new UserActivityManager(userLoader);
+            UserLoader userLoader = new(dataProvider, apiUrl);
+            UserActivityManager userActivityManager = new(userLoader);
 
             // Assert 1
             Assert.True(userActivityManager.UserExists(nickname));
