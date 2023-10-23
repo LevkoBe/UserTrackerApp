@@ -23,7 +23,7 @@ namespace UserTracker
             if (userActivities == null)
             {
                 _userActivities = new Dictionary<string, UserActivity>();
-                LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                LoadUserActivityFromJson("..\\UserTrackerApp\\userActivities.json");
             }
             else
             {
@@ -269,7 +269,7 @@ namespace UserTracker
             {
                 FetchAndUpdateUserActivities();
 
-                SaveUserActivityToJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                SaveUserActivityToJson("..\\UserTrackerApp\\userActivities.json");
 
                 await Task.Delay(fetchInterval);
             }
