@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserTrackerTest", "UserTrac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserTrackerAPI", "UserTrackerAPI\UserTrackerAPI.csproj", "{B372190B-54A8-4F41-A696-FC20835B21B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsWithoutInternet", "TestsWithoutInternet\TestsWithoutInternet.csproj", "{F1C031C9-ECC6-46A6-96A1-AD83A7288E00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestsWithoutInternet", "TestsWithoutInternet\TestsWithoutInternet.csproj", "{F1C031C9-ECC6-46A6-96A1-AD83A7288E00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
