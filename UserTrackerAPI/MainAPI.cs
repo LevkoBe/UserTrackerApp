@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.Json;
 using UserTracker;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,9 +30,8 @@ ReportManager reportManager = new();
 
 app.MapGet("/", () => userLoader.GetAllUsers());
 app.MapGet("/formatted", () => userLoader.GetAllUsers().Select(user => user.ToString()));
-app.MapGet("/api/stats/users", (HttpContext context) =>
+app.MapGet("/api/stats/users/", (string date) =>
 {
-    var date = context.Request.Query["date"];
     if (DateTime.TryParseExact(date, "yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime dateTime))
     {
         int? usersOnline = userActivityManager.GetUserActivitiesAtDateTime(dateTime);
@@ -46,12 +44,9 @@ app.MapGet("/api/stats/users", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter");
     }
 });
-app.MapGet("/api/stats/user", (HttpContext context) =>
+app.MapGet("/api/stats/user", (string date, string nickname) =>
 {
-    string nickname = context.Request.Query["nickname"];
-    string dateParam = context.Request.Query["date"];
-
-    if (DateTime.TryParseExact(dateParam, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
+    if (DateTime.TryParseExact(date, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
     {
         var userOnlineResponse = userActivityManager.GetUserOnlineStatus(nickname, dateTime);
 
@@ -69,11 +64,9 @@ app.MapGet("/api/stats/user", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter.");
     }
 });
-app.MapGet("/api/predictions/users", (HttpContext context) =>
+app.MapGet("/api/predictions/users", (string date) =>
 {
-    var dateStr = context.Request.Query["date"].ToString();
-
-    if (DateTime.TryParseExact(dateStr, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
+    if (DateTime.TryParseExact(date, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
     {
         var predictedUsers = userActivityManager.PredictUsersOnline(futureDate);
         return Results.Json(new { usersOnline = predictedUsers });
@@ -83,17 +76,13 @@ app.MapGet("/api/predictions/users", (HttpContext context) =>
         return Results.BadRequest("Invalid date parameter");
     }
 });
-app.MapGet("/api/predictions/user", (HttpContext context) =>
+app.MapGet("/api/predictions/user", (string nickname, string date, string tolerance) =>
 {
-    var dateStr = context.Request.Query["date"].ToString();
-    var toleranceStr = context.Request.Query["tolerance"].ToString();
-    var nickname = context.Request.Query["nickname"].ToString();
-
-    if (DateTime.TryParseExact(dateStr, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
+    if (DateTime.TryParseExact(date, "yyyy-MM-dd-HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime futureDate))
     {
-        if (double.TryParse(toleranceStr, out double tolerance))
+        if (double.TryParse(tolerance, out double toleranceDouble))
         {
-            bool willBeOnline = userActivityManager.PredictUserOnline(nickname, futureDate, tolerance, out double onlineChance);
+            bool willBeOnline = userActivityManager.PredictUserOnline(nickname, futureDate, toleranceDouble, out double onlineChance);
             return Results.Json(new { willBeOnline, onlineChance });
         }
         else
@@ -107,10 +96,8 @@ app.MapGet("/api/predictions/user", (HttpContext context) =>
     }
 
 });
-app.MapGet("/api/stats/user/total", (HttpContext context) =>
+app.MapGet("/api/stats/user/total", (string nickname) =>
 {
-    var nickname = context.Request.Query["nickname"].ToString();
-
     if (!string.IsNullOrEmpty(nickname))
     {
         long totalTime = userActivityManager.GetTotalOnlineTimeForUser(nickname);
@@ -121,10 +108,8 @@ app.MapGet("/api/stats/user/total", (HttpContext context) =>
         return Results.BadRequest("Invalid nickname parameter");
     }
 });
-app.MapGet("/api/stats/user/average", (HttpContext context) =>
+app.MapGet("/api/stats/user/average", (string nickname) =>
 {
-    var nickname = context.Request.Query["nickname"].ToString();
-
     if (!string.IsNullOrEmpty(nickname))
     {
         long? weeklyAverage = userActivityManager.GetWeeklyAverageOnlineTimeForUser(nickname);
@@ -136,10 +121,8 @@ app.MapGet("/api/stats/user/average", (HttpContext context) =>
         return Results.BadRequest("Invalid nickname parameter");
     }
 });
-app.MapGet("/api/user/forget", (HttpContext context) =>
-{   
-    var nickname = context.Request.Query["nickname"].ToString();
-
+app.MapGet("/api/user/forget", (string nickname) =>
+{
     if (userActivityManager.UserExists(nickname))
     {
         userActivityManager.ForgetUserData(nickname);
@@ -150,6 +133,9 @@ app.MapGet("/api/user/forget", (HttpContext context) =>
         return Results.Json(new { message = "User not found" });
     }
 });
+
+// app.MapPost("/api/report/{reportName}", async (string reportName, [FromBody] ReportConfiguration reportConfig) =>
+
 app.MapPost("/api/report/{reportName}", async (HttpContext context) =>
 {
     var reportName = context.Request.RouteValues["reportName"].ToString();
@@ -186,14 +172,8 @@ app.MapPost("/api/report/{reportName}", async (HttpContext context) =>
 
     return Results.BadRequest("Invalid or empty report configuration.");
 });
-
-
-app.MapGet("/api/report/{reportName}", async (HttpContext context) =>
+app.MapGet("/api/report/{reportName}", async (string reportName, string fromStr, string toStr) =>
 {
-    var reportName = context.Request.RouteValues["reportName"].ToString();
-    var fromStr = context.Request.Query["from"].ToString();
-    var toStr = context.Request.Query["to"].ToString();
-
     if (DateTime.TryParseExact(fromStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fromDate) &&
         DateTime.TryParseExact(toStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime toDate))
     {
@@ -221,6 +201,8 @@ app.MapGet("/api/report/{reportName}", async (HttpContext context) =>
         return Results.BadRequest("Invalid date parameters.");
     }
 });
+
+
 
 
 app.Run();

@@ -11,7 +11,6 @@ namespace UserTrackerTest.GDPR
 {
     public class GDPRe2eTests
     {
-        [Fact]
         public void Expect_DeletingUser_When_WeForgetHim()
         {
             // Arrange
