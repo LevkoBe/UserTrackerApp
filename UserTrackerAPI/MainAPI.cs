@@ -158,10 +158,10 @@ app.MapPost("/api/report/{reportName}", (string reportName, [FromBody] ReportCon
 
     return Results.BadRequest("Invalid or empty report configuration.");
 });
-app.MapGet("/api/report/{reportName}", async (string reportName, string fromStr, string toStr) =>
+app.MapGet("/api/report/{reportName}", async (string reportName, string from, string to) =>
 {
-    if (DateTime.TryParseExact(fromStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fromDate) &&
-        DateTime.TryParseExact(toStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime toDate))
+    if (DateTime.TryParseExact(from, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fromDate) &&
+        DateTime.TryParseExact(to, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime toDate))
     {
         var report = reportManager.GetReport(reportName);
 
