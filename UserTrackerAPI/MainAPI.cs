@@ -133,41 +133,27 @@ app.MapGet("/api/user/forget", (string nickname) =>
         return Results.Json(new { message = "User not found" });
     }
 });
-
-// app.MapPost("/api/report/{reportName}", async (string reportName, [FromBody] ReportConfiguration reportConfig) =>
-
-app.MapPost("/api/report/{reportName}", async (HttpContext context) =>
+app.MapPost("/api/report/{reportName}", (string reportName, [FromBody] ReportConfiguration reportConfig) =>
 {
-    var reportName = context.Request.RouteValues["reportName"].ToString();
-    using var reader = new StreamReader(context.Request.Body);
-    var requestBody = await reader.ReadToEndAsync();
-    if (!string.IsNullOrWhiteSpace(requestBody))
+    try
     {
-        try
+        if (reportConfig != null)
         {
-            var reportConfig = JsonSerializer.Deserialize<ReportConfiguration>(requestBody, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var success = reportManager.CreateReport(reportName, reportConfig);
 
-            if (reportConfig != null)
+            if (success)
             {
-                var success = reportManager.CreateReport(reportName, reportConfig);
-
-                if (success)
-                {
-                    return Results.Ok();
-                }
-                else
-                {
-                    return Results.BadRequest("Report with the same name already exists.");
-                }
+                return Results.Ok();
+            }
+            else
+            {
+                return Results.BadRequest("Report with the same name already exists.");
             }
         }
-        catch (JsonException)
-        {
-            return Results.BadRequest("Invalid report configuration.");
-        }
+    }
+    catch (JsonException)
+    {
+        return Results.BadRequest("Invalid report configuration.");
     }
 
     return Results.BadRequest("Invalid or empty report configuration.");
@@ -201,8 +187,6 @@ app.MapGet("/api/report/{reportName}", async (string reportName, string fromStr,
         return Results.BadRequest("Invalid date parameters.");
     }
 });
-
-
 
 
 app.Run();
