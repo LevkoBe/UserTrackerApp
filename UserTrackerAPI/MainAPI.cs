@@ -187,6 +187,18 @@ app.MapGet("/api/report/{reportName}", async (string reportName, string from, st
         return Results.BadRequest("Invalid date parameters.");
     }
 });
+app.MapGet("/api/users/list", () =>
+{
+    var userList = userActivityManager.GetUserList();
+    var formattedUserList = userList.Select(user =>
+        new
+        {
+            username = user.Username,
+            firstSeen = user.FirstSeen
+        });
+
+    return Results.Json(formattedUserList);
+});
 
 
 app.Run();
