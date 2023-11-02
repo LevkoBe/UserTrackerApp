@@ -24,6 +24,23 @@ namespace UserTracker
             // nothing
         }
 
+        public DateTime? FirstSeen()
+        {
+            DateTime? firstSeen = null;
+
+            foreach (var timePeriod in ActivityPeriods)
+            {
+                if (firstSeen == null || timePeriod.Start < firstSeen)
+                {
+                    firstSeen = timePeriod.Start;
+                }
+            }
+
+            return firstSeen;
+        }
+
+
+
         public DateTime? GetNearestOnlineTime(DateTime dateTime)
         {
             DateTime? nearestOnlineTime = null;

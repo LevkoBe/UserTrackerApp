@@ -31,6 +31,18 @@ namespace UserTracker
             }
         }
 
+        public List<UserListResponse> GetUserList()
+        {
+            var userList = _userActivities.Values.Select(userActivity => new UserListResponse
+            {
+                Username = userActivity.nickname,
+                FirstSeen = userActivity.FirstSeen()
+            }).ToList();
+
+            return userList;
+        }
+
+
         public long? GetMinimumDailyOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
@@ -404,5 +416,12 @@ namespace UserTracker
         public bool? WasUserOnline { get; set; }
         public DateTime? NearestOnlineTime { get; set; }
     }
+
+    public class UserListResponse
+    {
+        public string Username { get; set; }
+        public DateTime? FirstSeen { get; set; }
+    }
+
 
 }
