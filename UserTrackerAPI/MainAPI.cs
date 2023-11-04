@@ -22,7 +22,7 @@ IGetData dataProvider = new GetData();
 string apiUrl = "https://sef.podkolzin.consulting/api/users/lastSeen";
 UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
 
-UserActivityManager userActivityManager = new UserActivityManager(userLoader);
+UserActivityManager userActivityManager = new UserActivityManager(null);
 
 // await Task.Run(async () => await userActivityManager.StartDataFetching(TimeSpan.FromSeconds(30))); // file is already too big
 ReportManager reportManager = new();
