@@ -1,15 +1,14 @@
-    [Unit]
+﻿﻿    [Unit]
     Description=ASP.NET Core web template
     
     [Service]
     # will set the Current Working Directory (CWD)
-    WorkingDirectory=/output
+    WorkingDirectory=/server/output
     # systemd will run this executable to start the service
     # if /usr/bin/dotnet doesn't work, use `which dotnet` to find correct dotnet executable path
-    # ExecStart=/usr/bin/dotnet /UserTrackerApp/UserTrackerAPI/obj/Debug/net7.0/UserTrackerAPI.dll --urls=http://[::]/
-    ExecStart=/usr/bin/dotnet output/UserTrackerAPI.dll --urls=http://[::]/
+    ExecStart=/usr/bin/dotnet /server/output/UserTrackerAPI.dll --urls=http://[::]/
     # to query logs using journalctl, set a logical name here  
-    SyslogIdentifier=UserTracker
+    SyslogIdentifier=UserTrackerAPI
     
     # Use your username to keep things simple, for production scenario's I recommend a dedicated user/group.
     # If you pick a different user, make sure dotnet and all permissions are set correctly to run the app.
