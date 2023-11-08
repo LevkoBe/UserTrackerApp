@@ -26,8 +26,8 @@ namespace UserTracker
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
                 var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
-                var path4 = "/usr/bin/dotnet/server/UserTrackerApp/UserTrackerApp/userActivities.json";
-                var path5 = "/root/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path4 = "../UserTrackerApp/userActivities.json";
+                var path5 = "./UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
                     LoadUserActivityFromJson(path1);
                 else if (File.Exists(path2))
@@ -296,8 +296,8 @@ namespace UserTracker
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
                 var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
-                var path4 = "/usr/bin/dotnet/server/UserTrackerApp/UserTrackerApp/userActivities.json";
-                var path5 = "/root/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path4 = "../UserTrackerApp/userActivities.json";
+                var path5 = "./UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
                     LoadUserActivityFromJson(path1);
                 else if (File.Exists(path2))
