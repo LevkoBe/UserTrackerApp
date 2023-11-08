@@ -26,11 +26,17 @@ namespace UserTracker
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
                 var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path4 = "/usr/bin/dotnet/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path5 = "/root/server/UserTrackerApp/UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
                     LoadUserActivityFromJson(path1);
                 else if (File.Exists(path2))
                     LoadUserActivityFromJson(path2);
-                else LoadUserActivityFromJson(path3);
+                else if (File.Exists(path3))
+                    LoadUserActivityFromJson(path3);
+                else if (File.Exists(path4))
+                    LoadUserActivityFromJson(path4);
+                else LoadUserActivityFromJson(path5);
             }
             else
             {
@@ -290,11 +296,17 @@ namespace UserTracker
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
                 var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path4 = "/usr/bin/dotnet/server/UserTrackerApp/UserTrackerApp/userActivities.json";
+                var path5 = "/root/server/UserTrackerApp/UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
                     LoadUserActivityFromJson(path1);
                 else if (File.Exists(path2))
                     LoadUserActivityFromJson(path2);
-                else LoadUserActivityFromJson(path3);
+                else if (File.Exists(path3))
+                    LoadUserActivityFromJson(path3);
+                else if (File.Exists(path4))
+                    LoadUserActivityFromJson(path4);
+                else LoadUserActivityFromJson(path5);
 
                 await Task.Delay(fetchInterval);
             }
