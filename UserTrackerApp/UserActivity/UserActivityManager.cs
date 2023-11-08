@@ -25,9 +25,12 @@ namespace UserTracker
                 _userActivities = new Dictionary<string, UserActivity>();
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
+                var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
                     LoadUserActivityFromJson(path1);
-                else LoadUserActivityFromJson(path2);
+                else if (File.Exists(path2))
+                    LoadUserActivityFromJson(path2);
+                else LoadUserActivityFromJson(path3);
             }
             else
             {
@@ -286,9 +289,12 @@ namespace UserTracker
                 FetchAndUpdateUserActivities();
                 var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
                 var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
+                var path3 = "/server/UserTrackerApp/UserTrackerApp/userActivities.json";
                 if (File.Exists(path1))
-                    SaveUserActivityToJson(path1);
-                else SaveUserActivityToJson(path2);
+                    LoadUserActivityFromJson(path1);
+                else if (File.Exists(path2))
+                    LoadUserActivityFromJson(path2);
+                else LoadUserActivityFromJson(path3);
 
                 await Task.Delay(fetchInterval);
             }
