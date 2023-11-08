@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace UserTracker
 {
@@ -22,13 +23,101 @@ namespace UserTracker
             if (userActivities == null)
             {
                 _userActivities = new Dictionary<string, UserActivity>();
-                LoadUserActivityFromJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
+                var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
+                var path3 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "/UserTrackerApp/userActivities.json");
+                var path4 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "/UserTrackerApp/UserTrackerApp/userActivities.json");
+                var path5 = "/etc/systemd/system/userActivities.json";
+                if (File.Exists(path1))
+                    LoadUserActivityFromJson(path1);
+                else if (File.Exists(path2))
+                    LoadUserActivityFromJson(path2);
+                else if (File.Exists(path3))
+                    LoadUserActivityFromJson(path3);
+                else if (File.Exists(path4))
+                    LoadUserActivityFromJson(path4);
+                else LoadUserActivityFromJson(path5);
             }
             else
             {
                 _userActivities = userActivities!;
             }
         }
+
+        public List<UserListResponse> GetUserList()
+        {
+            var userList = _userActivities.Values.Select(userActivity => new UserListResponse
+            {
+                Username = userActivity.nickname,
+                FirstSeen = userActivity.FirstSeen()
+            }).ToList();
+
+            return userList;
+        }
+
+
+        public long? GetMinimumDailyOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                if (fromDate == null)
+                    fromDate = DateTime.MinValue;
+                if (toDate == null)
+                    toDate = DateTime.MaxValue;
+
+                long? minOnlineTime = null;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start >= fromDate && timePeriod.End <= toDate)
+                    {
+                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
+                        long onlineTime = (long)periodTime.TotalSeconds;
+
+                        if (!minOnlineTime.HasValue || onlineTime < minOnlineTime)
+                        {
+                            minOnlineTime = onlineTime;
+                        }
+                    }
+                }
+
+                return minOnlineTime;
+            }
+
+            return null;
+        }
+
+        public long? GetMaximumDailyOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            if (_userActivities.TryGetValue(nickname, out var userActivity))
+            {
+                if (fromDate == null)
+                    fromDate = DateTime.MinValue;
+                if (toDate == null)
+                    toDate = DateTime.MaxValue;
+
+                long? maxOnlineTime = null;
+
+                foreach (var timePeriod in userActivity.ActivityPeriods)
+                {
+                    if (timePeriod.Start >= fromDate && timePeriod.End <= toDate)
+                    {
+                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
+                        long onlineTime = (long)periodTime.TotalSeconds;
+
+                        if (!maxOnlineTime.HasValue || onlineTime > maxOnlineTime)
+                        {
+                            maxOnlineTime = onlineTime;
+                        }
+                    }
+                }
+
+                return maxOnlineTime;
+            }
+
+            return null;
+        }
+
 
         public bool UserExists(string nickname)
         {
@@ -37,20 +126,18 @@ namespace UserTracker
 
         public void ForgetUserData(string nickname)
         {
-            if (_userActivities.ContainsKey(nickname))
-            {
-                _userActivities.Remove(nickname);
-                forgottenUsers.Add(nickname);
-                SaveForgottenUsersToFile("forgottenUsers.json");
-            }
+            SaveForgottenUsersToFile(nickname);
+            _userActivities.Remove(nickname);
+            forgottenUsers.Add(nickname);
+            SaveForgottenUsersToFile("forgottenUsers.json");
         }
 
 
 
-        public long? GetWeeklyAverageOnlineTimeForUser(string nickname)
+        public long? GetWeeklyAverageOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             long totalTime = GetTotalOnlineTimeForUser(nickname);
-            long totalWeeks = CountWeeksUserOnline(nickname);
+            long totalWeeks = CountWeeksUserOnline(nickname, fromDate, toDate);
 
             if (totalWeeks > 0)
             {
@@ -60,10 +147,10 @@ namespace UserTracker
             return null;
         }
 
-        public long? GetDailyAverageOnlineTimeForUser(string nickname)
+        public long? GetDailyAverageOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             long totalTime = GetTotalOnlineTimeForUser(nickname);
-            long totalDays = CountWeeksUserOnline(nickname);  
+            long totalDays = CountDaysUserOnline(nickname, fromDate, toDate);  
 
             if (totalDays > 0)
             {
@@ -73,8 +160,7 @@ namespace UserTracker
             return null;
         }
 
-
-        public long GetTotalOnlineTimeForUser(string nickname)
+        public long GetTotalOnlineTimeForUser(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
@@ -84,8 +170,22 @@ namespace UserTracker
                 {
                     if (timePeriod.End != default)
                     {
-                        TimeSpan periodTime = timePeriod.End - timePeriod.Start;
-                        totalTime += (long)periodTime.TotalSeconds;
+                        DateTime periodStart = timePeriod.Start;
+                        DateTime periodEnd = timePeriod.End;
+                        if (fromDate.HasValue)
+                        {
+                            periodStart = periodStart < fromDate.Value ? fromDate.Value : periodStart;
+                        }
+                        if (toDate.HasValue)
+                        {
+                            periodEnd = periodEnd > toDate.Value ? toDate.Value : periodEnd;
+                        }
+
+                        if (periodStart < periodEnd)
+                        {
+                            TimeSpan periodTime = periodEnd - periodStart;
+                            totalTime += (long)periodTime.TotalSeconds;
+                        }
                     }
                 }
 
@@ -94,6 +194,7 @@ namespace UserTracker
 
             return 0; // User not found or has no online activity.
         }
+
 
 
         public int? PredictUsersOnline(DateTime futureDate)
@@ -192,8 +293,20 @@ namespace UserTracker
             while (true)
             {
                 FetchAndUpdateUserActivities();
-
-                SaveUserActivityToJson("C:\\FromDD\\C#Projects\\UserTrackerApp\\UserTrackerApp\\userActivities.json");
+                var path1 = Path.Combine(Directory.GetCurrentDirectory(), "../UserTrackerApp/userActivities.json");
+                var path2 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../UserTrackerApp/userActivities.json");
+                var path3 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "/UserTrackerApp/userActivities.json");
+                var path4 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "/UserTrackerApp/UserTrackerApp/userActivities.json");
+                var path5 = "/etc/systemd/system/userActivities.json";
+                if (File.Exists(path1))
+                    LoadUserActivityFromJson(path1);
+                else if (File.Exists(path2))
+                    LoadUserActivityFromJson(path2);
+                else if (File.Exists(path3))
+                    LoadUserActivityFromJson(path3);
+                else if (File.Exists(path4))
+                    LoadUserActivityFromJson(path4);
+                else LoadUserActivityFromJson(path5);
 
                 await Task.Delay(fetchInterval);
             }
@@ -298,31 +411,29 @@ namespace UserTracker
                 }
             }
         }
-
-        public int CountWeeksUserOnline(string nickname)
+        public int CountWeeksUserOnline(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
-                return userActivity.CountWeeks();
+                return userActivity.CountWeeks(fromDate, toDate);
             }
 
             return 0;
         }
 
-        public int CountDaysUserOnline(string nickname)
+        public int CountDaysUserOnline(string nickname, DateTime? fromDate = null, DateTime? toDate = null)
         {
             if (_userActivities.TryGetValue(nickname, out var userActivity))
             {
-                return userActivity.CountDays();
+                return userActivity.CountDays(fromDate, toDate);
             }
 
             return 0;
         }
+
 
 
     }
-
-
 
 
     public class UserOnlineResponse
@@ -330,5 +441,12 @@ namespace UserTracker
         public bool? WasUserOnline { get; set; }
         public DateTime? NearestOnlineTime { get; set; }
     }
+
+    public class UserListResponse
+    {
+        public string Username { get; set; }
+        public DateTime? FirstSeen { get; set; }
+    }
+
 
 }

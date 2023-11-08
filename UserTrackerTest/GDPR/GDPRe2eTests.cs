@@ -11,20 +11,19 @@ namespace UserTrackerTest.GDPR
 {
     public class GDPRe2eTests
     {
-        [Fact]
         public void Expect_DeletingUser_When_WeForgetHim()
         {
             // Arrange
             var nickname = "Nick37";
-            var filename = "forgottenUsers.json";
+            var filename = "..\\..\\UserTrackerApp\\forgottenUsers.json";
 
             var originalContent = File.ReadAllText(filename);
             var existingList = JsonSerializer.Deserialize<List<string>>(originalContent);
 
             IGetData dataProvider = new GetData();
             string apiUrl = "https://sef.podkolzin.consulting/api/users/lastSeen";
-            UserLoader userLoader = new UserLoader(dataProvider, apiUrl);
-            UserActivityManager userActivityManager = new UserActivityManager(userLoader);
+            UserLoader userLoader = new(dataProvider, apiUrl);
+            UserActivityManager userActivityManager = new(userLoader);
 
             // Assert 1
             Assert.True(userActivityManager.UserExists(nickname));

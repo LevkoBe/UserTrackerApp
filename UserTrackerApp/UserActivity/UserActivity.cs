@@ -24,6 +24,23 @@ namespace UserTracker
             // nothing
         }
 
+        public DateTime? FirstSeen()
+        {
+            DateTime? firstSeen = null;
+
+            foreach (var timePeriod in ActivityPeriods)
+            {
+                if (firstSeen == null || timePeriod.Start < firstSeen)
+                {
+                    firstSeen = timePeriod.Start;
+                }
+            }
+
+            return firstSeen;
+        }
+
+
+
         public DateTime? GetNearestOnlineTime(DateTime dateTime)
         {
             DateTime? nearestOnlineTime = null;
@@ -65,9 +82,8 @@ namespace UserTracker
             }
         }
 
-        public int CountWeeks()
+        public int CountWeeks(DateTime? fromDate = null, DateTime? toDate = null)
         {
-
             HashSet<int> weeks = new HashSet<int>();
 
             foreach (var timePeriod in ActivityPeriods)
@@ -77,8 +93,12 @@ namespace UserTracker
                     DateTime current = timePeriod.Start;
                     while (current <= timePeriod.End)
                     {
-                        int week = GetIso8601WeekOfYear(current);
-                        weeks.Add(week);
+                        if ((!fromDate.HasValue || current >= fromDate.Value) &&
+                            (!toDate.HasValue || current <= toDate.Value))
+                        {
+                            int week = GetIso8601WeekOfYear(current);
+                            weeks.Add(week);
+                        }
                         current = current.AddDays(1);
                     }
                 }
@@ -87,9 +107,8 @@ namespace UserTracker
             return weeks.Count;
         }
 
-        public int CountDays()
+        public int CountDays(DateTime? fromDate = null, DateTime? toDate = null)
         {
-
             HashSet<DateTime> days = new HashSet<DateTime>();
 
             foreach (var timePeriod in ActivityPeriods)
@@ -99,7 +118,11 @@ namespace UserTracker
                     DateTime current = timePeriod.Start;
                     while (current.Date <= timePeriod.End.Date)
                     {
-                        days.Add(current.Date);
+                        if ((!fromDate.HasValue || current >= fromDate.Value) &&
+                            (!toDate.HasValue || current <= toDate.Value))
+                        {
+                            days.Add(current.Date);
+                        }
                         current = current.AddDays(1);
                     }
                 }
